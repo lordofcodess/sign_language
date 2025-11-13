@@ -1,0 +1,4 @@
+node_modules/
+.vscode/
+public/assets/web_model/
+public/labels.json
