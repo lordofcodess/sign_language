@@ -527,19 +527,19 @@ function Translate() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
-          <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-          <span className="text-white text-lg">WOTE</span>
+          <Star className="w-5 h-5 text-green-600 fill-green-600" />
+          <span className="text-gray-800 text-lg">WOTE</span>
         </div>
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold text-white">Translation</h1>
+          <h1 className="text-4xl font-bold text-gray-800">Translation</h1>
           {/* Mode Toggle */}
           <div className="flex gap-2">
             <button
               onClick={() => setSignToTextMode(true)}
               className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                 signToTextMode
-                  ? 'bg-amber-500 text-white'
-                  : 'border-2 border-amber-500 text-white bg-transparent'
+                  ? 'bg-green-600 text-white'
+                  : 'border-2 border-green-600 text-gray-800 bg-white hover:bg-green-50'
               }`}
             >
               Sign → Text/Speech
@@ -548,8 +548,8 @@ function Translate() {
               onClick={() => setSignToTextMode(false)}
               className={`px-6 py-2 rounded-lg font-medium transition-colors ${
                 !signToTextMode
-                  ? 'bg-amber-500 text-white'
-                  : 'border-2 border-amber-500 text-white bg-transparent'
+                  ? 'bg-green-600 text-white'
+                  : 'border-2 border-green-600 text-gray-800 bg-white hover:bg-green-50'
               }`}
             >
               Text/Speech → Sign
@@ -564,12 +564,12 @@ function Translate() {
           {/* Hand Detection and Translation Result Side by Side */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Hand Detection Feed */}
-            <div className="bg-slate-900 rounded-xl p-6 border-2 border-green-500">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+            <div className="bg-white rounded-xl p-6 border-2 border-green-500 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Star className="w-5 h-5 text-green-600 fill-green-600" />
                 GH GSL Sign Detection
               </h3>
-              <div className="relative aspect-video bg-slate-950 rounded-lg overflow-hidden">
+              <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 <video
                   ref={videoRef}
                   autoPlay
@@ -582,7 +582,7 @@ function Translate() {
                   className="absolute inset-0 w-full h-full pointer-events-none"
                 />
                 {!isRecording && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-950">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                     <div className="text-center">
                       <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
                         <img 
@@ -591,7 +591,7 @@ function Translate() {
                           className="w-full h-full object-contain opacity-60"
                         />
                       </div>
-                      <p className="text-slate-400">Hand detection will appear here...</p>
+                      <p className="text-gray-500">Hand detection will appear here...</p>
                     </div>
                   </div>
                 )}
@@ -599,18 +599,18 @@ function Translate() {
               {/* Stats when recording */}
               {isRecording && (
                 <div className="mt-4 flex items-center gap-4 text-sm flex-wrap">
-                  <span className="text-slate-300">FPS: {fps}</span>
-                  <span className="text-slate-300">|</span>
-                  <span className="text-slate-300">Buffer: {detectionBuffer}/30</span>
+                  <span className="text-gray-700">FPS: {fps}</span>
+                  <span className="text-gray-700">|</span>
+                  <span className="text-gray-700">Buffer: {detectionBuffer}/30</span>
                   
                   {/* TTS Language Selector */}
                   {enableTTS && (
                     <div className="flex items-center gap-2">
-                      <label className="text-slate-400 text-xs">TTS Language:</label>
+                      <label className="text-gray-600 text-xs">TTS Language:</label>
                       <select
                         value={ttsLanguage}
                         onChange={(e) => setTtsLanguage(e.target.value as TTSLanguage)}
-                        className="px-2 py-1 rounded bg-slate-700 text-white text-xs border border-slate-600 focus:outline-none focus:border-green-500"
+                        className="px-2 py-1 rounded bg-white text-gray-800 text-xs border border-gray-300 focus:outline-none focus:border-green-500"
                         disabled={isTTSLoading}
                       >
                         <option value="en">English</option>
@@ -618,7 +618,7 @@ function Translate() {
                         <option value="ee">Ewe</option>
                       </select>
                       {isTTSLoading && (
-                        <span className="text-xs text-amber-400 animate-pulse">Loading...</span>
+                        <span className="text-xs text-green-600 animate-pulse">Loading...</span>
                       )}
                     </div>
                   )}
@@ -629,7 +629,7 @@ function Translate() {
                     className={`px-3 py-1 rounded text-xs transition-colors ${
                       enableTTS
                         ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                        : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
                     }`}
                     title={enableTTS ? 'Audio controls enabled' : 'Audio controls disabled'}
                   >
@@ -640,25 +640,25 @@ function Translate() {
             </div>
 
             {/* Translation Result */}
-            <div className="bg-slate-900 rounded-xl p-6 border-2 border-amber-500">
+            <div className="bg-white rounded-xl p-6 border-2 border-green-500 shadow-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Translation Result</h3>
-                <Volume2 className="w-5 h-5 text-amber-400" />
+                <h3 className="text-lg font-semibold text-gray-800">Translation Result</h3>
+                <Volume2 className="w-5 h-5 text-green-600" />
               </div>
               
               {/* Translation Text Display */}
-              <div className="bg-slate-950 rounded-lg p-6 min-h-[200px] flex items-center justify-center">
+              <div className="bg-gray-50 rounded-lg p-6 min-h-[200px] flex items-center justify-center">
                 {translatedText ? (
                   <div className="w-full">
-                    <p className="text-white text-xl mb-2">{translatedText}</p>
+                    <p className="text-gray-800 text-xl mb-2">{translatedText}</p>
                     {/* Language Selector - Show when camera is stopped and text exists */}
                     {!isRecording && (
                       <div className="flex items-center gap-2 mb-4">
-                        <label className="text-slate-400 text-sm">Audio Language:</label>
+                        <label className="text-gray-600 text-sm">Audio Language:</label>
                         <select
                           value={ttsLanguage}
                           onChange={(e) => setTtsLanguage(e.target.value as TTSLanguage)}
-                          className="px-3 py-1 rounded bg-slate-700 text-white text-sm border border-slate-600 focus:outline-none focus:border-blue-500"
+                          className="px-3 py-1 rounded bg-white text-gray-800 text-sm border border-gray-300 focus:outline-none focus:border-green-500"
                           disabled={isTTSLoading}
                         >
                           <option value="en">English</option>
@@ -666,7 +666,7 @@ function Translate() {
                           <option value="ee">Ewe</option>
                         </select>
                         {isTTSLoading && (
-                          <span className="text-xs text-amber-400 animate-pulse">Loading...</span>
+                          <span className="text-xs text-green-600 animate-pulse">Loading...</span>
                         )}
                       </div>
                     )}
@@ -676,8 +676,8 @@ function Translate() {
                         disabled={!translatedText || isTTSLoading || !enableTTS}
                         className={`flex-1 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
                           !translatedText || isTTSLoading || !enableTTS
-                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-green-600 hover:bg-green-700 text-white'
                         }`}
                       >
                         {isTTSLoading ? (
@@ -694,7 +694,7 @@ function Translate() {
                       {translatedText && (
                         <button
                           onClick={() => setTranslatedText('')}
-                          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
+                          className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg font-medium transition-colors"
                           title="Clear text"
                         >
                           Clear
@@ -703,15 +703,15 @@ function Translate() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-slate-500 text-center">Translation will appear here...</p>
+                  <p className="text-gray-500 text-center">Translation will appear here...</p>
                 )}
               </div>
             </div>
           </div>
 
           {isDetecting && (
-            <div className="mb-4 p-4 bg-blue-900/50 border border-blue-700 rounded-lg">
-              <p className="text-blue-300 text-sm">Initializing sign language detection model...</p>
+            <div className="mb-4 p-4 bg-green-100 border border-green-300 rounded-lg">
+              <p className="text-green-700 text-sm">Initializing sign language detection model...</p>
             </div>
           )}
 
@@ -724,8 +724,8 @@ function Translate() {
                 isRecording
                   ? 'bg-red-600 hover:bg-red-700 text-white'
                   : isDetecting
-                  ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                  : 'bg-amber-500 hover:bg-amber-600 text-white'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
               }`}
             >
               {isRecording ? (
@@ -746,16 +746,16 @@ function Translate() {
           {isRecording && detectionBuffer < 30 && (
             <div className="mt-4 max-w-md mx-auto">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-slate-400">Initializing detection...</span>
-                <span className="text-xs text-slate-400">{detectionBuffer}/30</span>
+                <span className="text-xs text-gray-600">Initializing detection...</span>
+                <span className="text-xs text-gray-600">{detectionBuffer}/30</span>
               </div>
-              <div className="w-full bg-slate-700 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="bg-amber-500 h-2 rounded-full transition-all duration-300"
+                  className="bg-green-600 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${(detectionBuffer / 30) * 100}%` }}
                 ></div>
               </div>
-              <p className="text-xs text-slate-500 mt-1 text-center">
+              <p className="text-xs text-gray-500 mt-1 text-center">
                 Show your hand sign clearly in the camera
               </p>
             </div>
@@ -769,20 +769,20 @@ function Translate() {
           {/* Input and Video Display Side by Side */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Input Section */}
-            <div className="bg-slate-900 rounded-xl p-6 border-2 border-green-500">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+            <div className="bg-white rounded-xl p-6 border-2 border-green-500 shadow-lg">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <Star className="w-5 h-5 text-green-600 fill-green-600" />
                 Text/Speech Input
               </h3>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-slate-400">Enter your text or speak</span>
+                <span className="text-sm text-gray-600">Enter your text or speak</span>
                 {/* Language Selector for Speech Recognition */}
                 <div className="flex items-center gap-2">
-                  <label className="text-slate-400 text-xs">Speech Language:</label>
+                  <label className="text-gray-600 text-xs">Speech Language:</label>
                   <select
                     value={speechRecognitionLanguage}
                     onChange={(e) => setSpeechRecognitionLanguage(e.target.value as TTSLanguage)}
-                    className="px-2 py-1 rounded bg-slate-700 text-white text-xs border border-slate-600 focus:outline-none focus:border-green-500"
+                    className="px-2 py-1 rounded bg-white text-gray-800 text-xs border border-gray-300 focus:outline-none focus:border-green-500"
                     disabled={isListening}
                   >
                     <option value="en">English</option>
@@ -795,11 +795,11 @@ function Translate() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Type your text here or use the microphone to speak..."
-                className="w-full bg-slate-950 text-white rounded-lg p-4 mb-4 min-h-[200px] resize-y focus:outline-none focus:ring-2 focus:ring-green-500 border border-slate-700"
+                className="w-full bg-gray-50 text-gray-800 rounded-lg p-4 mb-4 min-h-[200px] resize-y focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-300"
               />
               {isListening && (
                 <div className="mb-3 text-center">
-                  <p className="text-amber-400 text-sm animate-pulse flex items-center justify-center gap-2">
+                  <p className="text-green-600 text-sm animate-pulse flex items-center justify-center gap-2">
                     <Mic className="w-4 h-4" />
                     🎤 Listening in {speechRecognitionLanguage === 'en' ? 'English' : speechRecognitionLanguage === 'ak' ? 'Akan' : 'Ewe'}... Speak now
                   </p>
@@ -809,7 +809,7 @@ function Translate() {
                 <button
                   onClick={handleTranslateToSign}
                   disabled={!inputText.trim() || isLoading}
-                  className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Play className="w-5 h-5" />
                   Show Sign
@@ -819,7 +819,7 @@ function Translate() {
                   className={`px-4 py-3 ${
                     isListening 
                       ? 'bg-red-600 hover:bg-red-700 animate-pulse' 
-                      : 'bg-blue-600 hover:bg-blue-700'
+                      : 'bg-green-600 hover:bg-green-700'
                   } text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2`}
                   title={isListening ? 'Click to stop listening' : 'Click to speak'}
                 >
@@ -829,12 +829,12 @@ function Translate() {
             </div>
 
             {/* Sign Video Display */}
-            <div className="bg-slate-900 rounded-xl p-6 border-2 border-amber-500">
+            <div className="bg-white rounded-xl p-6 border-2 border-green-500 shadow-lg">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Sign Video/Avatar</h3>
-                <Volume2 className="w-5 h-5 text-amber-400" />
+                <h3 className="text-lg font-semibold text-gray-800">Sign Video/Avatar</h3>
+                <Volume2 className="w-5 h-5 text-green-600" />
               </div>
-              <div className="relative aspect-video bg-slate-950 rounded-lg overflow-hidden mb-4">
+              <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
                 {signVideoUrl ? (
                   <video
                     ref={signVideoRef}
@@ -857,11 +857,11 @@ function Translate() {
                           className="w-full h-full object-contain opacity-60 animate-pulse"
                         />
                       </div>
-                      <p className="text-white text-lg">Loading sign video...</p>
+                      <p className="text-gray-800 text-lg">Loading sign video...</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-950">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                     <div className="text-center">
                       <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
                         <img 
@@ -870,14 +870,14 @@ function Translate() {
                           className="w-full h-full object-contain opacity-60"
                         />
                       </div>
-                      <p className="text-slate-400">Sign video will appear here...</p>
+                      <p className="text-gray-500">Sign video will appear here...</p>
                     </div>
                   </div>
                 )}
               </div>
               {error && (
-                <div className="mb-4 p-3 bg-red-900/50 border border-red-700 rounded-lg">
-                  <p className="text-red-300 text-sm">{error}</p>
+                <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg">
+                  <p className="text-red-700 text-sm">{error}</p>
                 </div>
               )}
             </div>

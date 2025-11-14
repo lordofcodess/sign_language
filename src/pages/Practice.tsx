@@ -228,37 +228,37 @@ function Practice() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-green-600 mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           Back
         </button>
 
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">PRACTICE MODE</h1>
-          <p className="text-slate-400 text-lg">Choose your practice mode</p>
+          <h1 className="text-5xl font-bold text-gray-800 mb-4">PRACTICE MODE</h1>
+          <p className="text-gray-600 text-lg">Choose your practice mode</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           <button
             onClick={() => initializePractice('fingerspelling')}
-            className="bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-2xl p-12 shadow-xl transition-all transform hover:scale-105"
+            className="bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 rounded-2xl p-12 shadow-xl transition-all transform hover:scale-105"
           >
             <div className="text-center text-white">
               <div className="text-6xl font-bold mb-4">A-Z</div>
               <h2 className="text-2xl font-bold mb-2">Fingerspelling</h2>
-              <p className="text-blue-100">Practice individual letters</p>
+              <p className="text-green-100">Practice individual letters</p>
             </div>
           </button>
 
           <button
             onClick={() => initializePractice('signs')}
-            className="bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 rounded-2xl p-12 shadow-xl transition-all transform hover:scale-105"
+            className="bg-gradient-to-br from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 rounded-2xl p-12 shadow-xl transition-all transform hover:scale-105"
           >
             <div className="text-center text-white">
               <div className="text-6xl font-bold mb-4">📝</div>
               <h2 className="text-2xl font-bold mb-2">Basic Words</h2>
-              <p className="text-orange-100">Practice common signs</p>
+              <p className="text-green-100">Practice common signs</p>
             </div>
           </button>
         </div>
@@ -275,40 +275,40 @@ function Practice() {
             stopCamera();
             setMode(null);
           }}
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-green-600 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           Back
         </button>
-        <h1 className="text-2xl font-bold text-white">PRACTICE</h1>
+        <h1 className="text-2xl font-bold text-gray-800">PRACTICE</h1>
         <div className="w-20"></div> {/* Spacer */}
       </div>
 
       {/* Stats Bar */}
-      <div className="flex items-center justify-between mb-6 p-4 bg-slate-800 rounded-lg">
+      <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg border-2 border-green-200 shadow-sm">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-            <span className="text-white font-semibold">{stars}</span>
+            <Star className="w-5 h-5 text-green-600 fill-green-600" />
+            <span className="text-gray-800 font-semibold">{stars}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-orange-400" />
-            <span className="text-white font-semibold">Streak: {streak}</span>
+            <Sparkles className="w-5 h-5 text-green-500" />
+            <span className="text-gray-800 font-semibold">Streak: {streak}</span>
           </div>
         </div>
-        <div className="text-slate-400">
-          Learned today: <span className="text-white font-semibold">{learnedToday}</span>
+        <div className="text-gray-600">
+          Learned today: <span className="text-gray-800 font-semibold">{learnedToday}</span>
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Camera Feed */}
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-xl">
-          <h2 className="text-lg font-semibold text-white mb-4">Webcam Feed</h2>
-          <div className="relative aspect-video bg-slate-900 rounded-lg overflow-hidden mb-4">
+        <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-green-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Webcam Feed</h2>
+          <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
             {!isActive ? (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-slate-500">
+                <div className="text-center text-gray-500">
                   <p>Camera will start when practice begins</p>
                 </div>
               </div>
@@ -335,29 +335,29 @@ function Practice() {
         </div>
 
         {/* Prediction Panel */}
-        <div className="bg-slate-800 rounded-2xl p-6 shadow-xl">
-          <h2 className="text-lg font-semibold text-white mb-4">Prediction</h2>
+        <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-green-200">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Prediction</h2>
           
           {/* Predicted Letter */}
-          <div className="bg-slate-900 rounded-xl p-8 mb-4 text-center">
-            <div className="text-6xl font-bold text-white mb-2">
+          <div className="bg-gray-50 rounded-xl p-8 mb-4 text-center border-2 border-green-200">
+            <div className="text-6xl font-bold text-gray-800 mb-2">
               {predictedLetter || '?'}
             </div>
-            <div className="text-slate-400 text-sm mb-1">Confidence</div>
-            <div className="text-2xl font-bold text-amber-400">
+            <div className="text-gray-600 text-sm mb-1">Confidence</div>
+            <div className="text-2xl font-bold text-green-600">
               {confidence}%
             </div>
           </div>
 
           {/* Word Progress */}
           {mode === 'signs' && currentWord && (
-            <div className="bg-slate-900 rounded-xl p-6 mb-4">
-              <div className="text-slate-400 text-sm mb-2">🔤 Word:</div>
-              <div className="flex gap-2 justify-center text-3xl font-mono font-bold text-white">
+            <div className="bg-gray-50 rounded-xl p-6 mb-4 border-2 border-green-200">
+              <div className="text-gray-600 text-sm mb-2">🔤 Word:</div>
+              <div className="flex gap-2 justify-center text-3xl font-mono font-bold text-gray-800">
                 {wordProgress.map((char, idx) => (
                   <span
                     key={idx}
-                    className={idx === currentIndex ? 'text-amber-400' : 'text-white'}
+                    className={idx === currentIndex ? 'text-green-600' : 'text-gray-800'}
                   >
                     {char}
                   </span>
@@ -370,7 +370,7 @@ function Practice() {
           {predictedLetter && (
             <button
               onClick={speakLetter}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 mb-4"
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 mb-4"
             >
               <Volume2 className="w-5 h-5" />
               🔊 "{predictedLetter}" (TTS playback)
@@ -382,20 +382,20 @@ function Practice() {
             <button
               onClick={handleCorrect}
               disabled={!predictedLetter}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-700 disabled:text-slate-500 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-500 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
               ✓ Correct
             </button>
             <button
               onClick={handleHint}
-              className="px-4 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
+              className="px-4 bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
             >
               <HelpCircle className="w-5 h-5" />
             </button>
             <button
               onClick={handleNext}
-              className="px-4 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
+              className="px-4 bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
             >
               Next <ChevronRight className="w-5 h-5" />
             </button>
@@ -404,18 +404,18 @@ function Practice() {
       </div>
 
       {/* Progress Bar */}
-      <div className="mt-6 bg-slate-800 rounded-xl p-6">
+      <div className="mt-6 bg-white rounded-xl p-6 border-2 border-green-200 shadow-sm">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-white font-medium">Progress</span>
-          <span className="text-slate-400">Level {level}</span>
+          <span className="text-gray-800 font-medium">Progress</span>
+          <span className="text-gray-600">Level {level}</span>
         </div>
-        <div className="w-full bg-slate-700 rounded-full h-4 overflow-hidden">
+        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-300"
+            className="bg-gradient-to-r from-green-500 to-emerald-500 h-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="mt-2 text-sm text-slate-400">
+        <div className="mt-2 text-sm text-gray-600">
           {mode === 'fingerspelling' 
             ? `${currentIndex + 1} / ${ALPHABET.length} letters`
             : `${currentIndex + 1} / ${currentWord.length} letters in "${currentWord}"`
@@ -427,7 +427,7 @@ function Practice() {
       {showFeedback && (
         <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-6 py-4 rounded-lg shadow-2xl transition-all ${
           showFeedback === 'correct' 
-            ? 'bg-green-500 text-white' 
+            ? 'bg-green-600 text-white' 
             : 'bg-red-500 text-white'
         }`}>
           {showFeedback === 'correct' ? '🎉 Good job!' : 'Try again'}

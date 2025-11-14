@@ -15,7 +15,7 @@ function Home() {
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-900"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-green-900/40 via-green-800/30 to-white"></div>
         
         {/* Scattered Adinkra and Ese symbols with animations - randomized positions */}
         <div className="absolute inset-0 overflow-hidden">
@@ -72,7 +72,7 @@ function Home() {
           </div>
           <button
             onClick={() => navigate('/practice')}
-            className="mt-8 px-8 py-4 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold text-lg transition-colors shadow-lg"
+            className="mt-8 px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold text-lg transition-colors shadow-lg"
           >
             Start Your Journey
           </button>
@@ -80,49 +80,49 @@ function Home() {
       </div>
 
       {/* Main Content Section */}
-      <div className="bg-slate-900 py-16">
+      <div className="bg-white py-16">
         <div className="max-w-6xl mx-auto px-6">
-          <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h3 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Learn & Communicate in Local Languages
           </h3>
-          <p className="text-slate-400 text-lg mb-12 max-w-3xl">
+          <p className="text-gray-600 text-lg mb-12 max-w-3xl">
             Practice Ghanaian Sign Language (GSL) and translate between sign language and local spoken languages with ease.
           </p>
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* Practice GSL Card */}
-            <div className="bg-slate-800 rounded-xl p-8 border-2 border-blue-500">
+            <div className="bg-white rounded-xl p-8 border-2 border-green-500 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-blue-500/20 p-3 rounded-lg">
-                  <Hand className="w-8 h-8 text-blue-400" strokeWidth={2} />
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <Hand className="w-8 h-8 text-green-600" strokeWidth={2} />
                 </div>
-                <h4 className="text-2xl font-bold text-blue-400">Practice GSL</h4>
+                <h4 className="text-2xl font-bold text-green-600">Practice GSL</h4>
               </div>
-              <p className="text-slate-300 mb-6">
+              <p className="text-gray-600 mb-6">
                 Start learning phrases and build your fluency.
               </p>
               <button
                 onClick={() => navigate('/practice')}
-                className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
+                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
               >
                 Start Practicing
               </button>
             </div>
 
             {/* Translate Language Card */}
-            <div className="bg-slate-800 rounded-xl p-8 border-2 border-amber-500">
+            <div className="bg-white rounded-xl p-8 border-2 border-green-500 shadow-lg hover:shadow-xl transition-shadow">
               <div className="flex items-center gap-4 mb-4">
-                <div className="bg-amber-500/20 p-3 rounded-lg">
-                  <MessageSquare className="w-8 h-8 text-amber-400" strokeWidth={2} />
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <MessageSquare className="w-8 h-8 text-green-600" strokeWidth={2} />
                 </div>
-                <h4 className="text-2xl font-bold text-amber-400">Translate Language</h4>
+                <h4 className="text-2xl font-bold text-green-600">Translate Language</h4>
               </div>
-              <p className="text-slate-300 mb-6">
+              <p className="text-gray-600 mb-6">
                 Convert sign to text/speech and vice-versa in real-time.
               </p>
               <button
                 onClick={() => navigate('/translate')}
-                className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium transition-colors"
+                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
               >
                 Start Translating
               </button>

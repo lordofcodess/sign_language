@@ -7,7 +7,7 @@ import Practice from './pages/Practice';
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-900">
+      <div className="min-h-screen bg-gray-50">
         <Header />
         <main>
           <Routes>
