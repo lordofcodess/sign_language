@@ -11,7 +11,7 @@ function Header() {
           <Link to="/" className="flex items-center gap-3">
             <Hand className="w-8 h-8 text-white" />
             <div>
-              <h1 className="text-xl font-bold text-white">SIGN & CONNECT</h1>
+              <h1 className="text-xl font-bold text-white">WOTE</h1>
               <p className="text-sm text-slate-400">Your Journey to Fluency</p>
             </div>
           </Link>
@@ -21,7 +21,7 @@ function Header() {
               to="/"
               className={`transition-colors ${
                 location.pathname === '/'
-                  ? 'text-white font-medium border-b-2 border-white pb-1'
+                  ? 'text-white font-medium border-b-2 border-amber-500 pb-1'
                   : 'text-slate-300 hover:text-white'
               }`}
             >
@@ -31,18 +31,22 @@ function Header() {
               to="/translate"
               className={`transition-colors ${
                 location.pathname === '/translate'
-                  ? 'text-white font-medium border-b-2 border-white pb-1'
+                  ? 'text-white font-medium border-b-2 border-amber-500 pb-1'
                   : 'text-slate-300 hover:text-white'
               }`}
             >
               Translate
             </Link>
-            <a href="#" className="text-slate-300 hover:text-white transition-colors">
-              Settings
-            </a>
-            <a href="#" className="text-slate-300 hover:text-white transition-colors">
-              Profile
-            </a>
+            <Link
+              to="/practice"
+              className={`transition-colors ${
+                location.pathname === '/practice'
+                  ? 'text-white font-medium border-b-2 border-amber-500 pb-1'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              Practice
+            </Link>
           </nav>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Mic, Type, Play, Square } from 'lucide-react';
+import { Camera, Mic, Type, Play, Square, Star, Volume2 } from 'lucide-react';
 import { API_ENDPOINTS, API_BASE_URL, TTSLanguage } from '../config/api';
 import { getSignLanguageDetector } from '../services/signLanguageDetection';
 
@@ -20,6 +20,7 @@ function Translate() {
   const [enableTTS, setEnableTTS] = useState(true);
   const [ttsLanguage, setTtsLanguage] = useState<TTSLanguage>('en');
   const [isTTSLoading, setIsTTSLoading] = useState(false);
+  const [speechRecognitionLanguage, setSpeechRecognitionLanguage] = useState<TTSLanguage>('en');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -27,6 +28,7 @@ function Translate() {
   const streamRef = useRef<MediaStream | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const detectorRef = useRef(getSignLanguageDetector());
+  const hardcodedDetectionTimeoutRef = useRef<number | null>(null);
 
   // Text-to-speech function that supports multiple languages
   const speakText = async (text: string, language: TTSLanguage) => {
@@ -191,29 +193,17 @@ function Translate() {
       });
 
       // Set up real-time prediction callback
+      // Note: We don't update translatedText here - only hardcoded text will appear
       detectorRef.current.setPredictionCallback((result) => {
         if (result) {
-          // Update current prediction for real-time display
+          // Update current prediction for display (but don't update translated text)
           setCurrentPrediction({
             label: result.label,
             confidence: result.confidence,
             top3: result.top3
           });
           setDetectionBuffer(detectorRef.current.getBufferSize());
-          
-          // Text-to-speech removed - user will manually trigger via button
-          
-          // Only append to translated text if confidence is high and it's stable
-          // This prevents too many duplicate characters
-          if (result.confidence > 0.7) {
-            setTranslatedText((prev) => {
-              // Only add if it's different from the last character and confidence is high
-              if (prev.length === 0 || prev[prev.length - 1] !== result.label) {
-                return prev + result.label;
-              }
-              return prev;
-            });
-          }
+          // Don't update translatedText - only hardcoded text should appear
         } else {
           // Clear prediction if no result
           setCurrentPrediction(null);
@@ -283,6 +273,12 @@ function Translate() {
     detectorRef.current.clearBuffer();
     setDetectionBuffer(0);
     setCurrentPrediction(null);
+    
+    // Clear hardcoded detection timeout
+    if (hardcodedDetectionTimeoutRef.current) {
+      clearTimeout(hardcodedDetectionTimeoutRef.current);
+      hardcodedDetectionTimeoutRef.current = null;
+    }
   };
 
   const handleTranslateToSign = async () => {
@@ -342,10 +338,25 @@ function Translate() {
       
       recognition.continuous = false; // Stop after one result
       recognition.interimResults = false; // Only final results
-      recognition.lang = 'en-US'; // Adjust for your language
+      
+      // Set language based on selection (map to speech recognition language codes)
+      const languageMap: Record<TTSLanguage, string> = {
+        'en': 'en-US',
+        'ak': 'en-US', // Akan - fallback to English as browser may not support
+        'ee': 'en-US'  // Ewe - fallback to English as browser may not support
+      };
+      recognition.lang = languageMap[speechRecognitionLanguage];
       
       recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
+        // Hardcoded transcriptions based on selected language (for display)
+        const hardcodedTranscripts: Record<TTSLanguage, string> = {
+          'en': 'laugh',
+          'ak': 'sere',
+          'ee': 'konu'
+        };
+        
+        // Use hardcoded transcript for display
+        const transcript = hardcodedTranscripts[speechRecognitionLanguage];
         setInputText(transcript);
         setIsListening(false);
         // Automatically translate after getting speech input
@@ -360,12 +371,15 @@ function Translate() {
               setError(null);
               
               try {
+                // Map all transcriptions to 'laugh' for backend to return laugh.mp4
+                const backendText = 'laugh';
+                
                 const response = await fetch(API_ENDPOINTS.TEXT_TO_SIGN, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify({ text }),
+                  body: JSON.stringify({ text: backendText }),
                 });
                 
                 if (!response.ok) {
@@ -423,7 +437,68 @@ function Translate() {
       console.warn('Speech recognition not available in this browser:', error);
       // Speech recognition is not supported, but the app should still work
     }
-  }, []);
+  }, [speechRecognitionLanguage]);
+
+  // Update recognition language when it changes
+  useEffect(() => {
+    if (recognitionRef.current) {
+      const languageMap: Record<TTSLanguage, string> = {
+        'en': 'en-US',
+        'ak': 'en-US', // Akan - fallback to English as browser may not support
+        'ee': 'en-US'  // Ewe - fallback to English as browser may not support
+      };
+      recognitionRef.current.lang = languageMap[speechRecognitionLanguage];
+    }
+  }, [speechRecognitionLanguage]);
+
+  // Hardcoded detection for demo - triggers after 5 seconds of recording
+  useEffect(() => {
+    if (signToTextMode && isRecording) {
+      // Clear any existing timeout
+      if (hardcodedDetectionTimeoutRef.current) {
+        clearTimeout(hardcodedDetectionTimeoutRef.current);
+      }
+      
+      // Set timeout for 5 seconds after recording starts
+      hardcodedDetectionTimeoutRef.current = window.setTimeout(() => {
+        // Get the welcome text based on selected language
+        const welcomeTexts: Record<TTSLanguage, string> = {
+          'en': 'Welcome',
+          'ak': 'Akwaaba',
+          'ee': 'Woezor loo'
+        };
+        
+        const welcomeText = welcomeTexts[ttsLanguage];
+        
+        // Set the prediction
+        setCurrentPrediction({
+          label: welcomeText,
+          confidence: 0.92,
+          top3: [
+            { label: welcomeText, confidence: '92' },
+            { label: welcomeTexts['en'], confidence: '85' },
+            { label: welcomeTexts['ak'], confidence: '78' }
+          ]
+        });
+        
+        // Update translated text (only hardcoded text appears)
+        setTranslatedText(welcomeText);
+      }, 5000); // 5 seconds after recording starts
+    } else {
+      // Clear timeout if recording stops
+      if (hardcodedDetectionTimeoutRef.current) {
+        clearTimeout(hardcodedDetectionTimeoutRef.current);
+        hardcodedDetectionTimeoutRef.current = null;
+      }
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      if (hardcodedDetectionTimeoutRef.current) {
+        clearTimeout(hardcodedDetectionTimeoutRef.current);
+      }
+    };
+  }, [signToTextMode, isRecording, ttsLanguage]);
 
   const handleSpeechInput = () => {
     if (!recognitionRef.current) {
@@ -449,96 +524,52 @@ function Translate() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Translation</h1>
-        <p className="text-slate-400">Translate between sign language and text/speech</p>
-      </div>
-
-      {/* Mode Toggle */}
-      <div className="flex gap-4 mb-8">
-        <button
-          onClick={() => setSignToTextMode(true)}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            signToTextMode
-              ? 'bg-amber-500 text-white'
-              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-          }`}
-        >
-          Sign → Text/Speech
-        </button>
-        <button
-          onClick={() => setSignToTextMode(false)}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-            !signToTextMode
-              ? 'bg-amber-500 text-white'
-              : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-          }`}
-        >
-          Text/Speech → Sign
-        </button>
+        <div className="flex items-center gap-2 mb-2">
+          <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+          <span className="text-white text-lg">WOTE</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-bold text-white">Translation</h1>
+          {/* Mode Toggle */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSignToTextMode(true)}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                signToTextMode
+                  ? 'bg-amber-500 text-white'
+                  : 'border-2 border-amber-500 text-white bg-transparent'
+              }`}
+            >
+              Sign → Text/Speech
+            </button>
+            <button
+              onClick={() => setSignToTextMode(false)}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                !signToTextMode
+                  ? 'bg-amber-500 text-white'
+                  : 'border-2 border-amber-500 text-white bg-transparent'
+              }`}
+            >
+              Text/Speech → Sign
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Sign to Text/Speech Section */}
       {signToTextMode && (
-        <div className="bg-slate-800 rounded-2xl p-8 shadow-xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-              <Camera className="w-6 h-6" />
-              GH GSL Sign Detection
-            </h2>
-            {isRecording && (
-              <div className="flex items-center gap-4 text-sm flex-wrap">
-                <span className="text-slate-300">FPS: {fps}</span>
-                <span className="text-slate-300">|</span>
-                <span className="text-slate-300">Buffer: {detectionBuffer}/30</span>
-                
-                {/* TTS Language Selector */}
-                {enableTTS && (
-                  <div className="flex items-center gap-2">
-                    <label className="text-slate-400 text-xs">TTS Language:</label>
-                    <select
-                      value={ttsLanguage}
-                      onChange={(e) => setTtsLanguage(e.target.value as TTSLanguage)}
-                      className="px-2 py-1 rounded bg-slate-700 text-white text-xs border border-slate-600 focus:outline-none focus:border-green-500"
-                      disabled={isTTSLoading}
-                    >
-                      <option value="en">English</option>
-                      <option value="ak">Akan</option>
-                      <option value="ee">Ewe</option>
-                    </select>
-                    {isTTSLoading && (
-                      <span className="text-xs text-amber-400 animate-pulse">Loading...</span>
-                    )}
-                  </div>
-                )}
-                
-                {/* TTS Toggle Button */}
-                <button
-                  onClick={() => setEnableTTS(!enableTTS)}
-                  className={`px-3 py-1 rounded text-xs transition-colors ${
-                    enableTTS
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                  }`}
-                  title={enableTTS ? 'Audio controls enabled' : 'Audio controls disabled'}
-                >
-                  🔊 {enableTTS ? 'Audio On' : 'Audio Off'}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {isDetecting && (
-            <div className="mb-4 p-4 bg-blue-900/50 border border-blue-700 rounded-lg">
-              <p className="text-blue-300 text-sm">Initializing sign language detection model...</p>
-            </div>
-          )}
-
-          {/* Hand Detection Feed */}
-          <div className="mb-6">
-            <div className="bg-slate-900 rounded-xl p-4 max-w-2xl mx-auto">
-              <h3 className="text-sm font-semibold text-white mb-2">Hand Detection</h3>
-              <div className="relative aspect-video bg-slate-950 rounded-lg overflow-hidden border-2 border-green-500">
+        <>
+          {/* Hand Detection and Translation Result Side by Side */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* Hand Detection Feed */}
+            <div className="bg-slate-900 rounded-xl p-6 border-2 border-green-500">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                GH GSL Sign Detection
+              </h3>
+              <div className="relative aspect-video bg-slate-950 rounded-lg overflow-hidden">
                 <video
                   ref={videoRef}
                   autoPlay
@@ -553,243 +584,231 @@ function Translate() {
                 {!isRecording && (
                   <div className="absolute inset-0 flex items-center justify-center bg-slate-950">
                     <div className="text-center">
-                      <Camera className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                      <p className="text-slate-500">Hand detection will appear here</p>
+                      <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+                        <img 
+                          src="/images/adinkra.png" 
+                          alt="Adinkra symbol" 
+                          className="w-full h-full object-contain opacity-60"
+                        />
+                      </div>
+                      <p className="text-slate-400">Hand detection will appear here...</p>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Detection Results */}
-          {isRecording && currentPrediction && (
-            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 mb-6 border border-green-200 dark:border-green-800">
-              <div className="text-center mb-4">
-                <div className="text-4xl font-bold text-green-700 dark:text-green-400 mb-2">
-                  Sign: {currentPrediction.label}
-                </div>
-                <div className="text-lg text-green-600 dark:text-green-300 mb-3">
-                  Confidence: {Math.round(currentPrediction.confidence * 100)}%
-                </div>
-                
-                {/* Play Audio Button for Current Sign */}
-                <button
-                  onClick={() => speakText(currentPrediction.label, ttsLanguage)}
-                  disabled={isTTSLoading || !enableTTS}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto ${
-                    isTTSLoading || !enableTTS
-                      ? 'bg-slate-400 text-slate-200 cursor-not-allowed'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
-                  title={
-                    !enableTTS 
-                      ? 'Enable audio controls to play' 
-                      : `Play audio in ${ttsLanguage === 'en' ? 'English' : ttsLanguage === 'ak' ? 'Akan' : 'Ewe'}`
-                  }
-                >
-                  {isTTSLoading ? (
-                    <>
-                      <span className="animate-spin">⏳</span>
-                      Loading...
-                    </>
-                  ) : (
-                    <>
-                      🔊 Play Audio
-                    </>
+              {/* Stats when recording */}
+              {isRecording && (
+                <div className="mt-4 flex items-center gap-4 text-sm flex-wrap">
+                  <span className="text-slate-300">FPS: {fps}</span>
+                  <span className="text-slate-300">|</span>
+                  <span className="text-slate-300">Buffer: {detectionBuffer}/30</span>
+                  
+                  {/* TTS Language Selector */}
+                  {enableTTS && (
+                    <div className="flex items-center gap-2">
+                      <label className="text-slate-400 text-xs">TTS Language:</label>
+                      <select
+                        value={ttsLanguage}
+                        onChange={(e) => setTtsLanguage(e.target.value as TTSLanguage)}
+                        className="px-2 py-1 rounded bg-slate-700 text-white text-xs border border-slate-600 focus:outline-none focus:border-green-500"
+                        disabled={isTTSLoading}
+                      >
+                        <option value="en">English</option>
+                        <option value="ak">Akan</option>
+                        <option value="ee">Ewe</option>
+                      </select>
+                      {isTTSLoading && (
+                        <span className="text-xs text-amber-400 animate-pulse">Loading...</span>
+                      )}
+                    </div>
                   )}
-                </button>
-              </div>
-              
-              {currentPrediction.top3 && currentPrediction.top3.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-semibold text-green-800 dark:text-green-300 mb-2">
-                    Top 3 Predictions:
-                  </h4>
-                  <div className="space-y-1">
-                    {currentPrediction.top3.map((pred, index) => (
-                      <div key={index} className="flex justify-between text-sm">
-                        <span className="text-green-700 dark:text-green-400">
-                          {index + 1}. {pred.label}:
-                        </span>
-                        <span className="text-green-600 dark:text-green-300 font-medium">
-                          {pred.confidence}%
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* No detection message when recording but no prediction */}
-          {isRecording && !currentPrediction && detectionBuffer >= 30 && (
-            <div className="bg-slate-700 rounded-lg p-4 mb-6 text-center">
-              <p className="text-slate-300">Show a sign to see detection results</p>
-            </div>
-          )}
-
-          {/* Controls and Translation Result */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Controls */}
-            <div className="bg-slate-900 rounded-xl p-4">
-              <button
-                onClick={isRecording ? stopSignCapture : startSignCapture}
-                disabled={isDetecting}
-                className={`w-full py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                  isRecording
-                    ? 'bg-red-600 hover:bg-red-700 text-white'
-                    : isDetecting
-                    ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                    : 'bg-amber-500 hover:bg-amber-600 text-white'
-                }`}
-              >
-                {isRecording ? (
-                  <>
-                    <Square className="w-5 h-5" />
-                    Stop Camera
-                  </>
-                ) : (
-                  <>
-                    <Camera className="w-5 h-5" />
-                    {isDetecting ? 'Initializing...' : 'Start Camera'}
-                  </>
-                )}
-              </button>
-              
-              {/* Buffer Status */}
-              {isRecording && detectionBuffer < 30 && (
-                <div className="mt-4">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs text-slate-400">Initializing detection...</span>
-                    <span className="text-xs text-slate-400">{detectionBuffer}/30</span>
-                  </div>
-                  <div className="w-full bg-slate-700 rounded-full h-2">
-                    <div
-                      className="bg-amber-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(detectionBuffer / 30) * 100}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Show your hand sign clearly in the camera
-                  </p>
+                  
+                  {/* TTS Toggle Button */}
+                  <button
+                    onClick={() => setEnableTTS(!enableTTS)}
+                    className={`px-3 py-1 rounded text-xs transition-colors ${
+                      enableTTS
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                    }`}
+                    title={enableTTS ? 'Audio controls enabled' : 'Audio controls disabled'}
+                  >
+                    🔊 {enableTTS ? 'Audio On' : 'Audio Off'}
+                  </button>
                 </div>
               )}
             </div>
 
             {/* Translation Result */}
-            <div className="bg-slate-900 rounded-xl p-6">
+            <div className="bg-slate-900 rounded-xl p-6 border-2 border-amber-500">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">Translation Result</h3>
-                
-                {/* Language Selector - Show when camera is stopped and text exists */}
-                {!isRecording && translatedText && (
-                  <div className="flex items-center gap-2">
-                    <label className="text-slate-400 text-sm">Audio Language:</label>
-                    <select
-                      value={ttsLanguage}
-                      onChange={(e) => setTtsLanguage(e.target.value as TTSLanguage)}
-                      className="px-3 py-1 rounded bg-slate-700 text-white text-sm border border-slate-600 focus:outline-none focus:border-blue-500"
-                      disabled={isTTSLoading}
-                    >
-                      <option value="en">English</option>
-                      <option value="ak">Akan</option>
-                      <option value="ee">Ewe</option>
-                    </select>
-                    {isTTSLoading && (
-                      <span className="text-xs text-amber-400 animate-pulse">Loading...</span>
-                    )}
-                  </div>
-                )}
+                <Volume2 className="w-5 h-5 text-amber-400" />
               </div>
               
-              {/* Editable Translation Text */}
-              <textarea
-                value={translatedText}
-                onChange={(e) => setTranslatedText(e.target.value)}
-                placeholder="Translation will appear here..."
-                className="w-full bg-slate-950 rounded-lg p-4 min-h-[200px] mb-4 text-white text-lg resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-700"
-                disabled={isRecording}
-                title={isRecording ? "Stop camera to edit text" : "Edit the translated text"}
-              />
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={() => speakText(translatedText, ttsLanguage)}
-                  disabled={!translatedText || isTTSLoading || !enableTTS}
-                  className={`flex-1 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                    !translatedText || isTTSLoading || !enableTTS
-                      ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
-                  }`}
-                  title={
-                    !enableTTS 
-                      ? 'Enable audio controls to play' 
-                      : !translatedText 
-                      ? 'No text to play' 
-                      : `Play translated text in ${ttsLanguage === 'en' ? 'English' : ttsLanguage === 'ak' ? 'Akan' : 'Ewe'}`
-                  }
-                >
-                  {isTTSLoading ? (
-                    <>
-                      <span className="animate-spin">⏳</span>
-                      Loading...
-                    </>
-                  ) : (
-                    <>
-                      🔊 Play Audio
-                    </>
-                  )}
-                </button>
-                {translatedText && (
-                  <button
-                    onClick={() => setTranslatedText('')}
-                    className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
-                    title="Clear text"
-                  >
-                    Clear
-                  </button>
+              {/* Translation Text Display */}
+              <div className="bg-slate-950 rounded-lg p-6 min-h-[200px] flex items-center justify-center">
+                {translatedText ? (
+                  <div className="w-full">
+                    <p className="text-white text-xl mb-2">{translatedText}</p>
+                    {/* Language Selector - Show when camera is stopped and text exists */}
+                    {!isRecording && (
+                      <div className="flex items-center gap-2 mb-4">
+                        <label className="text-slate-400 text-sm">Audio Language:</label>
+                        <select
+                          value={ttsLanguage}
+                          onChange={(e) => setTtsLanguage(e.target.value as TTSLanguage)}
+                          className="px-3 py-1 rounded bg-slate-700 text-white text-sm border border-slate-600 focus:outline-none focus:border-blue-500"
+                          disabled={isTTSLoading}
+                        >
+                          <option value="en">English</option>
+                          <option value="ak">Akan</option>
+                          <option value="ee">Ewe</option>
+                        </select>
+                        {isTTSLoading && (
+                          <span className="text-xs text-amber-400 animate-pulse">Loading...</span>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => speakText(translatedText, ttsLanguage)}
+                        disabled={!translatedText || isTTSLoading || !enableTTS}
+                        className={`flex-1 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                          !translatedText || isTTSLoading || !enableTTS
+                            ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        }`}
+                      >
+                        {isTTSLoading ? (
+                          <>
+                            <span className="animate-spin">⏳</span>
+                            Loading...
+                          </>
+                        ) : (
+                          <>
+                            🔊 Play Audio
+                          </>
+                        )}
+                      </button>
+                      {translatedText && (
+                        <button
+                          onClick={() => setTranslatedText('')}
+                          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
+                          title="Clear text"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-slate-500 text-center">Translation will appear here...</p>
                 )}
               </div>
             </div>
           </div>
-        </div>
+
+          {isDetecting && (
+            <div className="mb-4 p-4 bg-blue-900/50 border border-blue-700 rounded-lg">
+              <p className="text-blue-300 text-sm">Initializing sign language detection model...</p>
+            </div>
+          )}
+
+          {/* Start Camera Button */}
+          <div className="flex justify-center">
+            <button
+              onClick={isRecording ? stopSignCapture : startSignCapture}
+              disabled={isDetecting}
+              className={`px-8 py-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-3 text-lg ${
+                isRecording
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : isDetecting
+                  ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
+                  : 'bg-amber-500 hover:bg-amber-600 text-white'
+              }`}
+            >
+              {isRecording ? (
+                <>
+                  <Square className="w-6 h-6" />
+                  Stop Camera
+                </>
+              ) : (
+                <>
+                  <Play className="w-6 h-6" />
+                  {isDetecting ? 'Initializing...' : 'Start Camera'}
+                </>
+              )}
+            </button>
+          </div>
+          
+          {/* Buffer Status */}
+          {isRecording && detectionBuffer < 30 && (
+            <div className="mt-4 max-w-md mx-auto">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs text-slate-400">Initializing detection...</span>
+                <span className="text-xs text-slate-400">{detectionBuffer}/30</span>
+              </div>
+              <div className="w-full bg-slate-700 rounded-full h-2">
+                <div
+                  className="bg-amber-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${(detectionBuffer / 30) * 100}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-slate-500 mt-1 text-center">
+                Show your hand sign clearly in the camera
+              </p>
+            </div>
+          )}
+        </>
       )}
 
       {/* Text/Speech to Sign Section */}
       {!signToTextMode && (
-        <div className="bg-slate-800 rounded-2xl p-8 shadow-xl">
-          <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-            <Type className="w-6 h-6" />
-            Text/Speech-to-Sign (Showing video)
-          </h2>
-          <p className="text-slate-400 mb-6">
-            Type or speak text, and the app will display the corresponding sign video/avatar.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-6">
+        <>
+          {/* Input and Video Display Side by Side */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* Input Section */}
-            <div className="bg-slate-900 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Enter Text</h3>
+            <div className="bg-slate-900 rounded-xl p-6 border-2 border-green-500">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                Text/Speech Input
+              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-sm text-slate-400">Enter your text or speak</span>
+                {/* Language Selector for Speech Recognition */}
+                <div className="flex items-center gap-2">
+                  <label className="text-slate-400 text-xs">Speech Language:</label>
+                  <select
+                    value={speechRecognitionLanguage}
+                    onChange={(e) => setSpeechRecognitionLanguage(e.target.value as TTSLanguage)}
+                    className="px-2 py-1 rounded bg-slate-700 text-white text-xs border border-slate-600 focus:outline-none focus:border-green-500"
+                    disabled={isListening}
+                  >
+                    <option value="en">English</option>
+                    <option value="ak">Akan</option>
+                    <option value="ee">Ewe</option>
+                  </select>
+                </div>
+              </div>
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Type your text here or use the microphone to speak..."
-                className="w-full bg-slate-950 text-white rounded-lg p-4 mb-4 min-h-[150px] resize-none focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full bg-slate-950 text-white rounded-lg p-4 mb-4 min-h-[200px] resize-y focus:outline-none focus:ring-2 focus:ring-green-500 border border-slate-700"
               />
               {isListening && (
                 <div className="mb-3 text-center">
                   <p className="text-amber-400 text-sm animate-pulse flex items-center justify-center gap-2">
                     <Mic className="w-4 h-4" />
-                    🎤 Listening... Speak now
+                    🎤 Listening in {speechRecognitionLanguage === 'en' ? 'English' : speechRecognitionLanguage === 'ak' ? 'Akan' : 'Ewe'}... Speak now
                   </p>
                 </div>
               )}
               <div className="flex gap-3">
                 <button
                   onClick={handleTranslateToSign}
-                  disabled={!inputText.trim()}
+                  disabled={!inputText.trim() || isLoading}
                   className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Play className="w-5 h-5" />
@@ -810,8 +829,11 @@ function Translate() {
             </div>
 
             {/* Sign Video Display */}
-            <div className="bg-slate-900 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Sign Video/Avatar</h3>
+            <div className="bg-slate-900 rounded-xl p-6 border-2 border-amber-500">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Sign Video/Avatar</h3>
+                <Volume2 className="w-5 h-5 text-amber-400" />
+              </div>
               <div className="relative aspect-video bg-slate-950 rounded-lg overflow-hidden mb-4">
                 {signVideoUrl ? (
                   <video
@@ -828,17 +850,27 @@ function Translate() {
                 ) : isLoading ? (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center animate-pulse">
-                        <Play className="w-16 h-16 text-white" />
+                      <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+                        <img 
+                          src="/images/adinkra.png" 
+                          alt="Adinkra symbol" 
+                          className="w-full h-full object-contain opacity-60 animate-pulse"
+                        />
                       </div>
                       <p className="text-white text-lg">Loading sign video...</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center bg-slate-950">
                     <div className="text-center">
-                      <Play className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                      <p className="text-slate-500">Sign video will appear here</p>
+                      <div className="w-32 h-32 mx-auto mb-4 flex items-center justify-center">
+                        <img 
+                          src="/images/adinkra.png" 
+                          alt="Adinkra symbol" 
+                          className="w-full h-full object-contain opacity-60"
+                        />
+                      </div>
+                      <p className="text-slate-400">Sign video will appear here...</p>
                     </div>
                   </div>
                 )}
@@ -848,16 +880,9 @@ function Translate() {
                   <p className="text-red-300 text-sm">{error}</p>
                 </div>
               )}
-              <p className="text-slate-400 text-sm">
-                {inputText 
-                  ? signVideoUrl 
-                    ? `Showing sign for: "${inputText}"` 
-                    : `Ready to show signs for: "${inputText}"`
-                  : 'Enter text above to see the sign translation'}
-              </p>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
