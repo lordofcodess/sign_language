@@ -1,5 +1,5 @@
-import { Hand } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Hand } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 function Header() {
   const location = useLocation();
@@ -20,19 +20,29 @@ function Header() {
             <Link
               to="/"
               className={`transition-colors ${
-                location.pathname === '/'
-                  ? 'text-green-600 font-medium border-b-2 border-green-500 pb-1'
-                  : 'text-gray-600 hover:text-green-600'
+                location.pathname === "/"
+                  ? "text-green-600 font-medium border-b-2 border-green-500 pb-1"
+                  : "text-gray-600 hover:text-green-600"
               }`}
             >
               Home
             </Link>
             <Link
+              to="/learn"
+              className={`transition-colors ${
+                location.pathname === "/learn"
+                  ? "text-green-600 font-medium border-b-2 border-green-500 pb-1"
+                  : "text-gray-600 hover:text-green-600"
+              }`}
+            >
+              Learn
+            </Link>
+            <Link
               to="/translate"
               className={`transition-colors ${
-                location.pathname === '/translate'
-                  ? 'text-green-600 font-medium border-b-2 border-green-500 pb-1'
-                  : 'text-gray-600 hover:text-green-600'
+                location.pathname === "/translate"
+                  ? "text-green-600 font-medium border-b-2 border-green-500 pb-1"
+                  : "text-gray-600 hover:text-green-600"
               }`}
             >
               Translate
@@ -40,9 +50,9 @@ function Header() {
             <Link
               to="/practice"
               className={`transition-colors ${
-                location.pathname === '/practice'
-                  ? 'text-green-600 font-medium border-b-2 border-green-500 pb-1'
-                  : 'text-gray-600 hover:text-green-600'
+                location.pathname === "/practice"
+                  ? "text-green-600 font-medium border-b-2 border-green-500 pb-1"
+                  : "text-gray-600 hover:text-green-600"
               }`}
             >
               Practice
@@ -55,4 +65,3 @@ function Header() {
 }
 
 export default Header;
-
