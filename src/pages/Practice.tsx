@@ -5,8 +5,8 @@ import {
   ArrowLeft,
   Camera,
   CameraOff,
-  Award,
-  Zap,
+  // Award,
+  // Zap,
   CheckCircle,
   XCircle,
   Star,
@@ -17,7 +17,7 @@ import {
   Users,
   Send,
   Lightbulb,
-  Clock,
+  // Clock,
 } from "lucide-react";
 
 type PracticeMode = "quiz" | "freestyle" | "challenge";
@@ -25,16 +25,16 @@ type Difficulty = "easy" | "medium" | "hard";
 
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const NUMBERS = "0123456789".split("");
-const BASIC_WORDS: string[] = [
-  "HELLO",
-  "WATER",
-  "THANK",
-  "YES",
-  "NO",
-  "PLEASE",
-  "SORRY",
-  "HELP",
-];
+// const BASIC_WORDS: string[] = [
+//   "HELLO",
+//   "WATER",
+//   "THANK",
+//   "YES",
+//   "NO",
+//   "PLEASE",
+//   "SORRY",
+//   "HELP",
+// ];
 
 export default function PracticeEnhanced() {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export default function PracticeEnhanced() {
   const [mode, setMode] = useState<PracticeMode | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [cameraEnabled, setCameraEnabled] = useState(false);
-  const [predictedSign, setPredictedSign] = useState("");
+  // const [predictedSign, setPredictedSign] = useState("");
   const [confidence, setConfidence] = useState(0);
   const [currentChallenge, setCurrentChallenge] = useState("");
   const [currentQuestions, setCurrentQuestions] = useState<string[]>([]);
