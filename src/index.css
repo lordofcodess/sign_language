@@ -3,47 +3,57 @@
 @tailwind utilities;
 
 @layer utilities {
+
   /* Floating animation - slow gentle movement */
   @keyframes float-slow {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0px) rotate(0deg);
     }
+
     50% {
       transform: translateY(-20px) rotate(5deg);
     }
   }
-  
+
   /* Floating animation with delay */
   @keyframes float-delayed {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0px) rotate(0deg);
     }
+
     50% {
       transform: translateY(-15px) rotate(-5deg);
     }
   }
-  
+
   /* Slow pulse animation */
   @keyframes pulse-slow {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 0.15;
       transform: scale(1);
     }
+
     50% {
       opacity: 0.25;
       transform: scale(1.05);
     }
   }
-  
+
   .animate-float-slow {
     animation: float-slow 6s ease-in-out infinite;
   }
-  
+
   .animate-float-delayed {
     animation: float-delayed 8s ease-in-out infinite;
     animation-delay: 1s;
   }
-  
+
   .animate-pulse-slow {
     animation: pulse-slow 4s ease-in-out infinite;
   }
